@@ -74,6 +74,7 @@ from pymal.search import (
     search_people,
 )
 from pymal.transport import reset_session, set_delay
+from pymal.arm import get_ids_from_imdb
 from pymal.user import (
     get_user_anime_list,
     get_user_manga_list,
@@ -124,4 +125,32 @@ __all__ = [
     "get_user_manga_list", "iter_user_manga_list",
     # transport
     "set_delay", "reset_session",
+    # cross-reference
+    "get_ids_from_imdb",
 ]
+
+
+def get_anime_by_imdb(imdb_id: str) -> "Anime":
+    """Fetch full Anime detail by IMDb ID.
+
+    Chain: IMDb → TVmaze (title) → AniList (mal_id via idMal) → ARM → get_anime().
+
+    Args:
+        imdb_id: IMDb ID string, e.g. ``"tt0213338"``.
+
+    Returns:
+        A fully populated :class:`~pymal.models.Anime`.
+
+    Raises:
+        ValueError: when the IMDb ID cannot be resolved to a MAL ID.
+        requests.HTTPError: on network failures.
+    """
+    data = get_ids_from_imdb(imdb_id)
+    mal_id = data.get("myanimelist")
+    if not mal_id:
+        raise ValueError(f"Could not resolve IMDb ID {imdb_id!r} to a MAL ID")
+    from pymal.anime import get_anime
+    return get_anime(int(mal_id))
+
+
+__all__.append("get_anime_by_imdb")

@@ -93,6 +93,101 @@ def to_external_ids(arm_data: dict):
     )
 
 
+def _tvmaze_title(imdb_id: str):
+    """Return (title, year) for an IMDb ID via TVmaze, or ('', None) on failure."""
+    try:
+        import requests
+        r = requests.get(
+            f"https://api.tvmaze.com/lookup/shows?imdb={imdb_id}",
+            headers={"User-Agent": "metadatarr/0.1"},
+            timeout=8,
+        )
+        if not r.ok:
+            return "", None
+        data = r.json()
+        title = data.get("name", "")
+        premiered = data.get("premiered") or ""
+        year = int(premiered[:4]) if premiered and len(premiered) >= 4 else None
+        return title, year
+    except Exception as exc:
+        LOG.warning("TVmaze lookup failed for imdb=%s: %s", imdb_id, exc)
+        return "", None
+
+
+def _anilist_search(title: str, year: Optional[int] = None):
+    """Search AniList GraphQL for an anime title, return (anilist_id, mal_id).
+
+    AniList's idMal field is the canonical MyAnimeList ID so this gives us
+    the MAL ID without touching MAL's unreliable text search.
+    """
+    QUERY = """
+    query($search: String) {
+      Media(type: ANIME, search: $search, sort: SEARCH_MATCH) {
+        id
+        idMal
+        startDate { year }
+      }
+    }
+    """
+    try:
+        import requests
+        r = requests.post(
+            "https://graphql.anilist.co",
+            json={"query": QUERY, "variables": {"search": title}},
+            headers={"Content-Type": "application/json", "User-Agent": "metadatarr/0.1"},
+            timeout=8,
+        )
+        r.raise_for_status()
+        media = (r.json().get("data") or {}).get("Media") or {}
+        anilist_id = media.get("id")
+        mal_id = media.get("idMal")
+        # Year filter: if hint provided and result year is off by more than 1, reject
+        if year and anilist_id:
+            result_year = (media.get("startDate") or {}).get("year")
+            if result_year and abs(result_year - year) > 1:
+                return None, None
+        return anilist_id, mal_id
+    except Exception as exc:
+        LOG.warning("AniList search failed for title=%r: %s", title, exc)
+        return None, None
+
+
+def get_ids_from_imdb(imdb_id: str) -> dict:
+    """Map an IMDb ID to all anime ID systems via TVmaze + AniList + ARM.
+
+    Chain:
+      1. TVmaze  — imdb_id → title, year
+      2. AniList — title   → anilist_id, mal_id (idMal field)
+      3. ARM     — mal_id  → full cross-reference dict
+
+    Returns the ARM response dict (keys: myanimelist, anilist, anidb, imdb,
+    thetvdb, themoviedb, kitsu, …), or an empty dict on failure.
+    """
+    # Check cache first
+    key = ("imdb", imdb_id)
+    if key in _CACHE:
+        return _CACHE[key]
+
+    title, year = _tvmaze_title(imdb_id)
+    if not title:
+        LOG.warning("get_ids_from_imdb: TVmaze could not resolve title for %s", imdb_id)
+        return {}
+
+    anilist_id, mal_id = _anilist_search(title, year)
+    if not mal_id and not anilist_id:
+        LOG.warning("get_ids_from_imdb: AniList found nothing for title=%r", title)
+        return {}
+
+    if mal_id:
+        data = get_ids_by("myanimelist", str(mal_id))
+    else:
+        data = get_ids_by("anilist", str(anilist_id))
+
+    if data:
+        _CACHE[key] = data
+    return data
+
+
 def enrich_external_ids(ids) -> Optional[dict]:
     """Given any ExternalIds, call ARM using whichever ID it supports as a source.
 
