@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pymal"
+dynamic = ["version"]
+description = "Python scraper / API client for myanimelist.net"
+license = { text = "Apache-2.0" }
+authors = [{ name = "JarbasAi", email = "jarbasai@mailfence.com" }]
+requires-python = ">=3.8"
+dependencies = [
+    "requests",
+]
+
+[project.optional-dependencies]
+stealth = ["curl-cffi"]
+test = ["pytest", "vcrpy", "pytest-vcr"]
+
+[project.urls]
+Homepage = "https://github.com/OpenJarbas/pymal"
+
+[tool.setuptools.dynamic]
+version = { attr = "pymal.version.__version__" }
+
+[tool.setuptools.packages.find]
+include = ["pymal*"]
