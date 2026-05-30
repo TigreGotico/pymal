@@ -28,6 +28,15 @@ def set_delay(seconds: float) -> None:
 
 def _make_session() -> Any:
     try:
+        from unblock_requests import CloudflareSession  # type: ignore
+
+        session = CloudflareSession(env_prefix="PYMAL", wayback_fallback=True)
+        session.headers.update(_HEADERS)
+        return session
+    except Exception:
+        pass
+
+    try:
         import curl_cffi.requests as cffi_requests  # type: ignore
         from curl_cffi import BrowserType
 

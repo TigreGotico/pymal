@@ -14,7 +14,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-stealth = ["curl-cffi"]
+anon = ["anon_requests"]
+stealth = ["curl-cffi", "unblock_requests"]
 test = ["pytest", "vcrpy", "pytest-vcr"]
 
 [project.urls]
