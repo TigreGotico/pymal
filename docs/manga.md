@@ -114,3 +114,6 @@ Returns `List[MangaCard]`.
 | 77 | Survival | 78 | Team Sports | 79 | Time Travel |
 | 80 | Vampire (theme) | 81 | Video Game | 82 | Visual Arts |
 | 83 | Workplace | | | | |
+
+---
+[← Anime endpoints](anime.md) · [Home](../README.md) · [Characters and people endpoints →](characters_people.md)

@@ -1,8 +1,6 @@
 # pymal
 
-Python scraper / API client for [myanimelist.net](https://myanimelist.net).
-
-Scrapes public HTML pages and the undocumented list JSON endpoints. No API key required.
+pymal is a Python client for [myanimelist.net](https://myanimelist.net) (MAL). It scrapes public HTML pages and the undocumented list JSON endpoints. It needs no API key.
 
 ## Install
 
@@ -35,12 +33,14 @@ for entry in pymal.iter_user_anime_list("Xinil"):
     print(entry.title, entry.status_label)
 ```
 
+See [docs/quickstart.md](docs/quickstart.md) for a longer walkthrough and common gotchas.
+
 ## Rate limiting
 
-MAL blocks aggressive scrapers. The default delay between requests is **1.5 seconds**.
+MAL blocks scrapers that send too many requests. The default delay between requests is **1.5 seconds**.
 
 ```python
-pymal.set_delay(2.0)   # increase if getting 429s
+pymal.set_delay(2.0)   # increase if you get 429 responses
 ```
 
 ## Covered endpoints
@@ -54,3 +54,23 @@ pymal.set_delay(2.0)   # increase if getting 429s
 | Search | `search_anime`, `search_manga`, `search_characters`, `search_people` |
 | Listings | `top_anime`, `top_manga`, `seasonal_anime`, `season_schedule`, `anime_genre`, `manga_genre` |
 | User | `get_user_profile`, `get_user_anime_list`, `get_user_manga_list`, `iter_user_anime_list`, `iter_user_manga_list` |
+
+## Documentation
+
+- [Quickstart](docs/quickstart.md)
+- [Anime endpoints](docs/anime.md)
+- [Manga endpoints](docs/manga.md)
+- [Characters and people endpoints](docs/characters_people.md)
+- [User endpoints](docs/user.md)
+- [Data models](docs/models.md)
+- [Transport and HTTP configuration](docs/transport.md)
+- [Recipes](docs/recipes.md)
+
+## Related projects
+
+- [TigreGotico/pyimdb](https://github.com/TigreGotico/pyimdb): client for IMDb, in the same `clients/video` group.
+- [TigreGotico/tutubo](https://github.com/TigreGotico/tutubo): client for YouTube, built on the same transport pattern.
+
+## License
+
+Apache-2.0.

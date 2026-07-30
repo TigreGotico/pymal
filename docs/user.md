@@ -127,4 +127,7 @@ Streaming variant, same pattern as `iter_user_anime_list`.
 
 ## Pagination internals
 
-User lists are fetched from `https://myanimelist.net/animelist/<username>/load.json?status=<status>&offset=<offset>`. Each page returns up to 300 entries. pymal increments the offset automatically until a page returns fewer than 300 entries.
+pymal fetches user lists from `https://myanimelist.net/animelist/<username>/load.json?status=<status>&offset=<offset>`. Each page returns up to 300 entries. pymal increments the offset automatically until a page returns fewer than 300 entries.
+
+---
+[← Characters and people endpoints](characters_people.md) · [Home](../README.md) · [Data models →](models.md)

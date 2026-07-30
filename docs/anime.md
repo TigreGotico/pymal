@@ -189,3 +189,6 @@ Returns `List[AnimeCard]`. `genre_name` is used only in the URL construction and
 | 76 | Showbiz | 77 | Survival | 78 | Team Sports |
 | 79 | Time Travel | 80 | Vampire (theme) | 81 | Video Game |
 | 82 | Visual Arts | 83 | Workplace |
+
+---
+[← Quickstart](quickstart.md) · [Home](../README.md) · [Manga endpoints →](manga.md)

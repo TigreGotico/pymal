@@ -1,6 +1,6 @@
 # Quickstart
 
-pymal is a Python scraper for [MyAnimeList](https://myanimelist.net) (MAL). It fetches and parses HTML pages and JSON list endpoints from MAL, returning typed Python dataclasses. No API key required.
+pymal is a Python scraper for [MyAnimeList](https://myanimelist.net) (MAL). It fetches and parses HTML pages and JSON list endpoints from MAL, and returns typed Python dataclasses. It needs no API key.
 
 ## Install
 
@@ -74,8 +74,11 @@ print(json.dumps(d, indent=2, default=str))
 pymal.set_delay(3.0)
 ```
 
-**Bot detection / 403 errors.** MAL actively detects headless requests. Install `pymal[stealth]` to use `curl-cffi`, which impersonates a real browser's TLS fingerprint. If you still get blocked, try `pymal.reset_session()` and retry after a few minutes.
+**Bot detection / 403 errors.** MAL detects headless requests. Install `pymal[stealth]` to use `curl-cffi`, which impersonates the TLS fingerprint of a real browser. If you still get blocked, run `pymal.reset_session()` and retry after a few minutes.
 
-**Missing fields.** Many fields on detail pages can be `None` or empty string when MAL hasn't filled them in. Always guard against `None` before using numeric fields like `score`, `episodes`, `ranked`.
+**Missing fields.** Many fields on detail pages can be `None` or an empty string when MAL has not filled them in. Guard against `None` before you use numeric fields such as `score`, `episodes`, and `ranked`.
 
-**Pagination.** Search and top-list endpoints return one page at a time. Pass `page=2`, `page=3`, etc. to get more results. User lists paginate automatically via `iter_user_anime_list`.
+**Pagination.** Search and top-list endpoints return one page at a time. Pass `page=2`, `page=3`, and so on to get more results. User lists paginate automatically through `iter_user_anime_list`.
+
+---
+[Home](../README.md) · [Anime endpoints →](anime.md)
