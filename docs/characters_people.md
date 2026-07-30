@@ -7,7 +7,7 @@ char = pymal.get_character(1)
 print(char.name, char.japanese_name)
 print(char.about[:200])
 for role in char.anime_roles:
-    print(f"  {role.anime_title} — {role.role}")
+    print(f"  {role.anime_title}: {role.role}")
 for va in char.voice_actors:
     print(f"  {va.name} ({va.language})")
 ```
@@ -22,9 +22,9 @@ Returns `Character`.
 | `japanese_name` | Japanese name |
 | `about` | Character description, up to 2000 characters |
 | `image_url` | Character image URL |
-| `anime_roles` | `List[CharacterAnimeRole]` — anime appearances |
-| `manga_roles` | `List[CharacterMangaRole]` — manga appearances |
-| `voice_actors` | `List[VoiceActorEntry]` — VAs in all languages |
+| `anime_roles` | `List[CharacterAnimeRole]` : anime appearances |
+| `manga_roles` | `List[CharacterMangaRole]` : manga appearances |
+| `voice_actors` | `List[VoiceActorEntry]` : VAs in all languages |
 
 Each `CharacterAnimeRole` has: `anime_title`, `anime_url`, `image_url`, `role` (`"Main"` or `"Supporting"`).
 
@@ -57,8 +57,8 @@ Returns `Person`.
 | `hometown` | Hometown |
 | `about` | Biography, up to 2000 characters |
 | `image_url` | Photo URL |
-| `va_roles` | `List[VARole]` — voice acting credits |
-| `staff_roles` | `List[StaffAnimeRole]` — anime staff credits |
+| `va_roles` | `List[VARole]` : voice acting credits |
+| `staff_roles` | `List[StaffAnimeRole]` : anime staff credits |
 
 **VARole vs StaffAnimeRole.** `va_roles` lists characters the person voiced, each linked to an anime. `staff_roles` lists production credits (Director, Sound Director, etc.).
 
@@ -90,3 +90,6 @@ person = results[0].get()
 ```
 
 Returns `List[PersonCard]`. Call `.get()` on any card to fetch the full `Person`.
+
+---
+[← Manga endpoints](manga.md) · [Home](../README.md) · [User endpoints →](user.md)

@@ -6,7 +6,7 @@
 pymal.set_delay(3.0)
 ```
 
-Sets the minimum delay between consecutive HTTP requests. The default is 1.5 seconds. MAL rate-limits scrapers and will return 429 or 403 responses if requests arrive too quickly. For bulk fetching operations, 2–3 seconds is recommended. For one-off lookups the default is usually fine.
+Sets the minimum delay between consecutive HTTP requests. The default is 1.5 seconds. MAL rate-limits scrapers and returns 429 or 403 responses if requests arrive too quickly. Use 2 to 3 seconds for bulk fetching. The default works for one-off lookups.
 
 The delay is enforced globally across all pymal functions.
 
@@ -30,9 +30,9 @@ Install the optional dependency:
 pip install pymal[stealth]
 ```
 
-When `curl-cffi` is installed, pymal automatically uses it instead of `requests`. `curl-cffi` impersonates the TLS fingerprint of a real browser (Firefox or Chrome), which bypasses MAL's bot detection. Without stealth mode, MAL may return 403 for certain pages that inspect TLS fingerprints.
+When `curl-cffi` is installed, pymal uses it instead of `requests`. `curl-cffi` impersonates the TLS fingerprint of a real browser (Firefox or Chrome), which bypasses MAL's bot detection. Without stealth mode, MAL can return 403 for pages that inspect TLS fingerprints.
 
-pymal selects the best available browser type at session creation time. No code change is required beyond the install.
+pymal selects the best available browser type at session creation time. The install is the only change you need to make.
 
 ---
 
@@ -72,6 +72,9 @@ requests_cache.install_cache("mal_cache", expire_after=3600)
 session = get_session()
 ```
 
-`requests-cache` monkey-patches `requests.Session`, so it takes effect automatically. Note: this does not work when `curl-cffi` is the active session backend.
+`requests-cache` patches `requests.Session`, so it takes effect automatically. This does not work when `curl-cffi` is the active session backend.
 
-For `curl-cffi` caching, write a thin wrapper that serializes responses to disk manually and checks before calling `get_html`.
+For `curl-cffi` caching, write a wrapper that serializes responses to disk and checks the cache before it calls `get_html`.
+
+---
+[← Data models](models.md) · [Home](../README.md) · [Recipes →](recipes.md)

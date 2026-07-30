@@ -62,7 +62,7 @@ for season in ("winter", "spring", "summer", "fall"):
 
 ## Find all anime by a specific studio
 
-The top and genre listing pages include studio names on `SeasonalAnimeCard`. To search by studio, iterate genre or top pages and filter:
+The top and genre listing pages include studio names on `SeasonalAnimeCard`. To search by studio, go through the genre or top pages and filter them:
 
 ```python
 import pymal
@@ -172,3 +172,6 @@ if previous_files:
     for mid in removed:
         print(f"Removed: {previous[str(mid)]['title']}")
 ```
+
+---
+[← Transport and HTTP configuration](transport.md) · [Home](../README.md)

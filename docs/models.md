@@ -1,6 +1,6 @@
 # Data Models
 
-All public types are importable directly from `pymal`.
+All public types are importable directly from `pymal`. This page lists every field on every model, grouped by the endpoint that returns it.
 
 ## Card vs full model pattern
 
@@ -27,13 +27,15 @@ print(d["characters"][0]["name"])
 
 ## AnimeCard
 
+`AnimeCard` is the summary returned by search, top, and listing functions.
+
 | Field | Type | Description | Example |
 |-------|------|-------------|---------|
 | `mal_id` | `int` | MAL numeric ID | `1` |
 | `title` | `str` | Primary title | `"Cowboy Bebop"` |
 | `url` | `str` | MAL page URL | `"https://myanimelist.net/anime/1"` |
 | `image_url` | `str` | Cover image CDN URL | `"https://cdn.myanimelist.net/..."` |
-| `score` | `Optional[float]` | Community score 1–10, `None` if not scored | `8.75` |
+| `score` | `Optional[float]` | Community score 1 to 10, `None` if not scored | `8.75` |
 | `type` | `str` | Format string | `"TV"` |
 | `episodes` | `Optional[int]` | Episode count, `None` if unknown | `26` |
 | `status` | `str` | Airing status | `"Finished Airing"` |
@@ -46,7 +48,7 @@ print(d["characters"][0]["name"])
 
 ## Anime
 
-Extends everything in `AnimeCard` plus:
+`Anime` is the full detail object returned by `get_anime`. It extends everything in `AnimeCard` plus:
 
 | Field | Type | Description | Example |
 |-------|------|-------------|---------|
@@ -85,6 +87,8 @@ Extends everything in `AnimeCard` plus:
 
 ## MangaCard
 
+`MangaCard` is the summary returned by `search_manga`, `top_manga`, and `manga_genre`.
+
 | Field | Type | Description | Example |
 |-------|------|-------------|---------|
 | `mal_id` | `int` | MAL numeric ID | `2` |
@@ -104,7 +108,7 @@ Extends everything in `AnimeCard` plus:
 
 ## Manga
 
-Extends `MangaCard` plus:
+`Manga` is the full detail object returned by `get_manga`. It extends `MangaCard` plus:
 
 | Field | Type | Description | Example |
 |-------|------|-------------|---------|
@@ -132,6 +136,8 @@ Extends `MangaCard` plus:
 
 ## CharacterCard
 
+`CharacterCard` is the summary returned by `search_characters`.
+
 | Field | Type | Description | Example |
 |-------|------|-------------|---------|
 | `mal_id` | `int` | MAL character ID | `1` |
@@ -147,6 +153,8 @@ Extends `MangaCard` plus:
 ---
 
 ## Character
+
+`Character` is the full detail object returned by `get_character`.
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -164,6 +172,8 @@ Extends `MangaCard` plus:
 
 ## PersonCard
 
+`PersonCard` is the summary returned by `search_people`.
+
 | Field | Type | Description |
 |-------|------|-------------|
 | `mal_id` | `int` | MAL person ID |
@@ -176,6 +186,8 @@ Extends `MangaCard` plus:
 ---
 
 ## Person
+
+`Person` is the full detail object returned by `get_person`.
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -219,11 +231,13 @@ Returned by `get_user_anime_list` / `get_user_manga_list`.
 
 ### AnimeListEntry
 
+Each entry describes one anime on a user's list.
+
 | Field | Type | Description |
 |-------|------|-------------|
 | `mal_id` | `int` | MAL ID |
 | `title` | `str` | Anime title |
-| `score` | `Optional[int]` | User score 1–10, `None` if not scored |
+| `score` | `Optional[int]` | User score 1 to 10, `None` if not scored |
 | `status` | `int` | Status code (see user docs) |
 | `status_label` | `str` (property) | Human-readable status |
 | `episodes_watched` | `int` | Episodes watched |
@@ -232,6 +246,8 @@ Returned by `get_user_anime_list` / `get_user_manga_list`.
 | `url` | `str` | MAL page URL |
 
 ### MangaListEntry
+
+Each entry describes one manga on a user's list.
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -252,6 +268,8 @@ Returned by `get_user_anime_list` / `get_user_manga_list`.
 ---
 
 ## UserProfile
+
+`UserProfile` is the full profile object returned by `get_user_profile`.
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -275,6 +293,8 @@ Returned by `get_user_anime_list` / `get_user_manga_list`.
 
 ### AnimeStats
 
+`AnimeStats` counts a user's anime list entries by status.
+
 | Field | Type | Description |
 |-------|------|-------------|
 | `watching` | `int` | Entries with status=Watching |
@@ -293,6 +313,8 @@ Same shape, with `reading` / `plan_to_read` / `days_read` instead of anime equiv
 ---
 
 ## UserFavorites
+
+`UserFavorites` groups the entries a user marked as favorites, by entry type.
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -336,6 +358,8 @@ Same shape, with `reading` / `plan_to_read` / `days_read` instead of anime equiv
 
 ## Supporting types
 
+These types appear nested inside the models above.
+
 ### RelatedEntry
 
 | Field | Type | Description |
@@ -360,6 +384,8 @@ Same shape, with `reading` / `plan_to_read` / `days_read` instead of anime equiv
 
 ### StaffRole (in Anime.staff)
 
+Each entry names one crew member and their production role.
+
 | Field | Type | Description |
 |-------|------|-------------|
 | `mal_id` | `int` | Person MAL ID |
@@ -378,6 +404,8 @@ Same shape, with `reading` / `plan_to_read` / `days_read` instead of anime equiv
 | `role` | `str` | `"Story"`, `"Art"`, or `"Story & Art"` |
 
 ### VARole (in Person.va_roles)
+
+Each entry links one character to the anime the person voiced them in.
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -406,6 +434,8 @@ Same shape, with `reading` / `plan_to_read` / `days_read` instead of anime equiv
 
 ### EpisodeEntry
 
+Each entry describes one aired episode, from `get_anime_episodes`.
+
 | Field | Type | Description |
 |-------|------|-------------|
 | `number` | `int` | Episode number |
@@ -415,6 +445,8 @@ Same shape, with `reading` / `plan_to_read` / `days_read` instead of anime equiv
 | `discussion_url` | `str` | MAL episode discussion URL |
 
 ### ReviewCard
+
+Each entry is one user review, from `get_anime_reviews`.
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -439,3 +471,6 @@ Same shape, with `reading` / `plan_to_read` / `days_read` instead of anime equiv
 ### CharacterAnimeRole / CharacterMangaRole
 
 Fields: `anime_title`/`manga_title`, `anime_url`/`manga_url`, `image_url`, `role`.
+
+---
+[← User endpoints](user.md) · [Home](../README.md) · [Transport and HTTP configuration →](transport.md)
