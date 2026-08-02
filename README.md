@@ -68,8 +68,8 @@ pymal.set_delay(2.0)   # increase if you get 429 responses
 
 ## Related projects
 
-- [TigreGotico/pyimdb](https://github.com/TigreGotico/pyimdb): client for IMDb, in the same `clients/video` group.
-- [TigreGotico/tutubo](https://github.com/TigreGotico/tutubo): client for YouTube, built on the same transport pattern.
+- [LeMetadatarr/pyimdb](https://github.com/LeMetadatarr/pyimdb): client for IMDb, in the same `clients/video` group.
+- [LeMetadatarr/tutubo](https://github.com/LeMetadatarr/tutubo): client for YouTube, built on the same transport pattern.
 
 ## License
 

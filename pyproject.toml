@@ -18,7 +18,7 @@ stealth = ["curl-cffi"]
 test = ["pytest", "vcrpy", "pytest-vcr"]
 
 [project.urls]
-Homepage = "https://github.com/OpenJarbas/pymal"
+Homepage = "https://github.com/LeMetadatarr/pymal"
 
 [tool.setuptools.dynamic]
 version = { attr = "pymal.version.__version__" }
