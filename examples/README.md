@@ -22,3 +22,5 @@ All scripts require `pip install pymal`. Run from the repository root or any dir
 | `franchise_map.py` | Starting from an anime ID, follow Sequel/Prequel/related links to map a full franchise |
 | `bulk_fetch.py` | Fetch a list of anime IDs with rate-limit awareness and a progress counter |
 | `genre_explorer.py` | Fetch first page of Action, Comedy, and Romance genres, print top 5 per genre |
+| `build_hf_dataset.py` | Build a Hugging Face-ready anime dataset from a genre JSONL seed file |
+| `scrape_hentai_jsonl.py` | Scrape all anime under a MAL genre to a resumable `.jsonl` dataset, card or full-detail mode |
