@@ -545,32 +545,30 @@ def parse_reviews_page(html: str) -> List[dict]:
 # ---------------------------------------------------------------------------
 
 def parse_recommendations_page(html: str) -> List[dict]:
+    """Parse the recommendations carousel from /anime/{id}/userrecs or /manga/{id}/userrecs.
+
+    MAL renders each recommended entry as an <li class="btn-anime"> card with a
+    title attribute, a link to /recommendations/(anime|manga)/{src}-{target},
+    a "N Users" count, and a lazy-loaded thumbnail (data-src).
+    """
     recs = []
     seen: set = set()
     for m in re.finditer(
-        r'<div[^>]*class="[^"]*userrecs-col[^"]*"[^>]*>(.*?)</div>\s*</div>',
-        html, re.DOTALL
+        r'<li[^>]*class="btn-anime"[^>]*title="([^"]*)"[^>]*>\s*'
+        r'<a[^>]+href="[^"]*/recommendations/(anime|manga)/\d+-(\d+)"[^>]*>.*?'
+        r'<span[^>]*class="users"[^>]*>([\d,]+)\s*Users?</span>.*?'
+        r'data-src="([^"]+)"',
+        html, re.DOTALL,
     ):
-        block = m.group(1)
-        m_link = re.search(r'<a[^>]*href="(https?://myanimelist\.net/(?:anime|manga)/(\d+)[^"]*)"[^>]*>', block)
-        if not m_link:
-            continue
-        url = m_link.group(1)
-        mal_id = int(m_link.group(2))
+        title = _clean(m.group(1))
+        entry_type = m.group(2)
+        mal_id = int(m.group(3))
         if mal_id in seen:
             continue
         seen.add(mal_id)
-
-        m_title = re.search(r'<span[^>]*class="[^"]*title[^"]*"[^>]*>([^<]+)</span>', block)
-        if not m_title:
-            m_title = re.search(r'<strong>([^<]+)</strong>', block)
-        title = _clean(m_title.group(1)) if m_title else ""
-
-        m_img = re.search(r'<img[^>]+src="([^"]+)"', block)
-        image_url = m_img.group(1) if m_img else ""
-
-        m_num = re.search(r'(\d+)\s*(?:user\s*)?recommendations?', block, re.I)
-        num_recs = int(m_num.group(1)) if m_num else 1
+        num_recs = _parse_int(m.group(4)) or 0
+        image_url = m.group(5)
+        url = f"{BASE_URL}/{entry_type}/{mal_id}"
 
         recs.append({"mal_id": mal_id, "title": title, "url": url, "image_url": image_url, "num_recommendations": num_recs})
     return recs
@@ -1330,6 +1328,10 @@ def _parse_user_stats_block(html: str, section_label: str) -> dict:
         )
         if not mm:
             mm = re.search(rf'>{re.escape(label)}</a>\s*<span[^>]*>([\d,]+)</span>', block, re.I)
+        if not mm:
+            # "Total Entries" / "Rewatched" / "Episodes" rows are plain
+            # <span>label</span><span>count</span> pairs, not anchors.
+            mm = re.search(rf'>{re.escape(label)}</span>\s*<span[^>]*>([\d,]+)</span>', block, re.I)
         return _parse_int(mm.group(1)) or 0 if mm else 0
 
     def _score_stat(label: str) -> float:
@@ -1414,29 +1416,37 @@ def _parse_user_favorites(html: str) -> dict:
         html, re.DOTALL | re.I,
     ):
         block = char_m.group(1)
+        # character favorite links are relative (/character/{id}/{slug})
         for mm in re.finditer(
-            r'<li[^>]*title="([^"]*)"[^>]*>\s*<a[^>]+href="(https?://myanimelist\.net/character/(\d+)/[^"]*)"',
+            r'<li[^>]*title="([^"]*)"[^>]*>\s*<a[^>]+href="(?:https?://myanimelist\.net)?(/character/(\d+)/[^"]*)"',
             block,
         ):
+            item_html = block[mm.start():mm.start() + 700]
+            m_anime = re.search(r'<span[^>]*class="[^"]*users[^"]*"[^>]*>([^<]+)</span>', item_html)
+            m_img = re.search(r'<img[^>]+data-src="([^"]+)"', item_html)
             fav["characters"].append({
                 "mal_id": int(mm.group(3)), "name": _clean(mm.group(1)),
-                "url": mm.group(2), "image_url": "", "anime_title": "", "anime_url": "",
+                "url": f"{BASE_URL}{mm.group(2)}",
+                "image_url": m_img.group(1) if m_img else "",
+                "anime_title": _clean(m_anime.group(1)) if m_anime else "", "anime_url": "",
             })
     for ppl_m in re.finditer(
         r'id="person_favorites"[^>]*>(.*?)(?=<div[^>]*id="[a-z_]+_favorites"|<div[^>]*class="[^"]*profile-stat|$)',
         html, re.DOTALL | re.I,
     ):
         block = ppl_m.group(1)
+        # people favorite links are relative (/people/{id}/{slug})
         for mm in re.finditer(
-            r'<li[^>]*title="([^"]*)"[^>]*>\s*<a[^>]+href="(https?://myanimelist\.net/people/(\d+)/[^"]*)"',
+            r'<li[^>]*title="([^"]*)"[^>]*>\s*<a[^>]+href="(?:https?://myanimelist\.net)?(/people/(\d+)/[^"]*)"',
             block,
         ):
+            item_html = block[mm.start():mm.start() + 700]
+            m_img = re.search(r'<img[^>]+data-src="([^"]+)"', item_html)
             fav["people"].append({
                 "mal_id": int(mm.group(3)), "name": _clean(mm.group(1)),
-                "url": mm.group(2), "image_url": "",
+                "url": f"{BASE_URL}{mm.group(2)}",
+                "image_url": m_img.group(1) if m_img else "",
             })
-    return fav
-
     return fav
 
 
@@ -1732,6 +1742,63 @@ def parse_genre_page(html: str) -> List[dict]:
     return results
 
 
+def parse_manga_genre_page(html: str) -> List[dict]:
+    """Parse a /manga/genre/{id}/ or /manga/magazine/{id}/ card grid page.
+
+    Cards use class="seasonal-anime js-seasonal-anime" — structurally
+    different from both the anime genre grid and the classic topmanga table.
+    """
+    results = []
+    seen: set = set()
+
+    card_starts = list(re.finditer(r'<div class="seasonal-anime js-seasonal-anime"[^>]*>', html))
+    for i, m_start in enumerate(card_starts):
+        start = m_start.start()
+        end = card_starts[i + 1].start() if i + 1 < len(card_starts) else len(html)
+        block = html[start:end]
+
+        m_link = re.search(r'<a[^>]+href="(https?://myanimelist\.net/manga/(\d+)/[^"?#]*)"', block)
+        if not m_link:
+            continue
+        url = m_link.group(1)
+        mal_id = int(m_link.group(2))
+        if mal_id in seen:
+            continue
+        seen.add(mal_id)
+
+        m_title = re.search(r'<h2[^>]*class="h2_manga_title"[^>]*>\s*<a[^>]*>([^<]+)</a>', block)
+        title = _clean(m_title.group(1)) if m_title else ""
+
+        m_img = re.search(r'<img[^>]+(?:data-src|src)="([^"]+)"', block)
+        image_url = m_img.group(1) if m_img else ""
+
+        m_info = re.search(r'<span class="item">([^<]+)</span>', block)
+        info_text = _clean(m_info.group(1)) if m_info else ""
+        manga_type = info_text.split(",")[0].strip() if info_text else ""
+
+        m_status = re.search(r'<span class="item ([a-z]+)"', block)
+        status = _clean(m_status.group(1)).replace("-", " ").title() if m_status else ""
+
+        m_vol = re.search(r'<span class="volume js-volume">([^<]*)</span>', block)
+        volumes = _parse_int(m_vol.group(1)) if m_vol else None
+        m_chp = re.search(r'<span class="chapter js-chapter">([^<]*)</span>', block)
+        chapters = _parse_int(m_chp.group(1)) if m_chp else None
+
+        m_genres_div = re.search(r'<div[^>]*class="genres[^"]*"[^>]*>(.*?)</div>', block, re.DOTALL)
+        genres_block = m_genres_div.group(1) if m_genres_div else ""
+        genres = [_clean(g) for g in re.findall(r'<a[^>]+href="[^"]*manga/genre/[^"]*"[^>]*>([^<]+)</a>', genres_block)]
+
+        m_syn = re.search(r'<p[^>]*class="[^"]*preline[^"]*"[^>]*>([^<]+)</p>', block)
+        synopsis = _clean(m_syn.group(1)) if m_syn else ""
+
+        results.append({
+            "mal_id": mal_id, "title": title, "url": url, "image_url": image_url,
+            "score": None, "type": manga_type, "volumes": volumes, "chapters": chapters,
+            "status": status, "members": None, "genres": genres, "synopsis": synopsis,
+        })
+    return results
+
+
 def parse_producer_page(html: str) -> List[dict]:
     """Producer pages use the same card grid as genre pages."""
     results = parse_genre_page(html)
@@ -1745,7 +1812,10 @@ def parse_producer_page(html: str) -> List[dict]:
 # ---------------------------------------------------------------------------
 
 def parse_magazine_page(html: str) -> List[dict]:
-    results = parse_top_manga(html)
+    """Magazine pages use the same card grid as manga genre pages."""
+    results = parse_manga_genre_page(html)
+    if not results:
+        results = parse_top_manga(html)
     if not results:
         results = parse_manga_search(html)
     return results

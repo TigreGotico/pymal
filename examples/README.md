@@ -24,3 +24,4 @@ All scripts require `pip install pymal`. Run from the repository root or any dir
 | `genre_explorer.py` | Fetch first page of Action, Comedy, and Romance genres, print top 5 per genre |
 | `build_hf_dataset.py` | Build a Hugging Face-ready anime dataset from a genre JSONL seed file |
 | `scrape_hentai_jsonl.py` | Scrape all anime under a MAL genre to a resumable `.jsonl` dataset, card or full-detail mode |
+| `arm_cross_reference.py` | Cross-reference a MAL anime ID to AniList, AniDB, IMDb, and TVDB via the ARM service |

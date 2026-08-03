@@ -9,6 +9,7 @@ from pymal._parse import (
     parse_global_reviews,
     parse_last_page,
     parse_magazine_page,
+    parse_manga_genre_page,
     parse_producer_page,
     parse_seasonal_anime,
     parse_top_anime,
@@ -142,7 +143,9 @@ def manga_genre(genre_id: int, genre_name: str = "", page: int = 1) -> List[Mang
     """Fetch one page of manga for a genre."""
     slug = f"{genre_id}/{genre_name}" if genre_name else str(genre_id)
     html = get_html(f"{BASE_URL}/manga/genre/{slug}?p=1&page={page}")
-    raw = parse_top_manga(html)
+    raw = parse_manga_genre_page(html)
+    if not raw:
+        raw = parse_top_manga(html)
     if not raw:
         from pymal._parse import parse_manga_search
         raw = parse_manga_search(html)
@@ -158,7 +161,9 @@ def iter_manga_genre(genre_id: int, genre_name: str = "") -> Iterator[MangaCard]
         html = get_html(f"{BASE_URL}/manga/genre/{slug}?p=1&page={page}")
         if last is None:
             last = parse_last_page(html)
-        raw = parse_top_manga(html)
+        raw = parse_manga_genre_page(html)
+        if not raw:
+            raw = parse_top_manga(html)
         if not raw:
             from pymal._parse import parse_manga_search
             raw = parse_manga_search(html)
