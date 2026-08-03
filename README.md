@@ -64,6 +64,7 @@ pymal.set_delay(2.0)   # increase if you get 429 responses
 - [User endpoints](docs/user.md)
 - [Data models](docs/models.md)
 - [Transport and HTTP configuration](docs/transport.md)
+- [ARM cross-reference](docs/arm.md)
 - [Recipes](docs/recipes.md)
 
 ## Related projects

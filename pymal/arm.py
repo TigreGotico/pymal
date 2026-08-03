@@ -37,6 +37,8 @@ def get_ids_by(source: str, id: str) -> dict:
             imdb, simkl, livechart, animenewsnetwork, anisearch
     id: the ID value as a string (MAL uses integers; IMDb uses 'tt...' strings)
     """
+    if source not in _VALID_SOURCES:
+        raise ValueError(f"source must be one of {sorted(_VALID_SOURCES)}")
     key = (source, str(id))
     if key in _CACHE:
         return _CACHE[key]
@@ -70,7 +72,7 @@ def to_external_ids(arm_data: dict):
     Always includes mal_id when present in the ARM response, so callers
     that looked up by anilist_id or anidb_id also get mal_id back.
     """
-    from mediavocab.models import ExternalIds
+    from pymal.models import ExternalIds
 
     if not arm_data:
         return ExternalIds()

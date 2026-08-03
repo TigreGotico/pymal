@@ -825,3 +825,24 @@ class MangaListEntry:
             "volumes_read": self.volumes_read, "total_volumes": self.total_volumes,
             "image_url": self.image_url, "url": self.url,
         }
+
+
+@dataclass
+class ExternalIds:
+    """Cross-referenced IDs for one anime title, as resolved by the ARM service."""
+    mal_id: Optional[int] = None
+    anilist_id: Optional[int] = None
+    anidb_id: Optional[int] = None
+    imdb: Optional[str] = None
+    tmdb_tv: Optional[int] = None
+    tvdb: Optional[int] = None
+    extra: Dict[str, str] = field(default_factory=dict)
+
+    @property
+    def as_dict(self) -> dict:
+        return {
+            "mal_id": self.mal_id, "anilist_id": self.anilist_id,
+            "anidb_id": self.anidb_id, "imdb": self.imdb,
+            "tmdb_tv": self.tmdb_tv, "tvdb": self.tvdb,
+            "extra": dict(self.extra),
+        }
