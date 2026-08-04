@@ -67,6 +67,23 @@ pymal.set_delay(2.0)   # increase if you get 429 responses
 - [ARM cross-reference](docs/arm.md)
 - [Recipes](docs/recipes.md)
 
+## Bulk harvesting (optional)
+
+`pymal` itself is a query client — it fetches one anime, one manga, one page at
+a time. For a full manga catalogue dump (complementing the anime dataset
+already covered by `examples/build_hf_dataset.py`), install the `harvest`
+extra, which adds a resumable bulk scraper built on
+[harvestkit](https://github.com/LeMetadatarr/harvestkit):
+
+```bash
+pip install pymal[harvest]
+pymal-harvest                 # or: python -m harvestkit jikan_manga
+```
+
+This walks the Jikan v4 manga endpoint end to end and writes a JSONL manga
+dataset (raw Jikan schema: `mal_id`, `title`, `genres`, `score`, ...) with
+resume-on-restart checkpointing. It is not part of the base install.
+
 ## Related projects
 
 - [LeMetadatarr/pyimdb](https://github.com/LeMetadatarr/pyimdb): client for IMDb, in the same `clients/video` group.
