@@ -16,6 +16,10 @@ dependencies = [
 [project.optional-dependencies]
 stealth = ["curl-cffi"]
 test = ["pytest", "vcrpy", "pytest-vcr"]
+harvest = ["harvestkit>=0.1.0a1"]
+
+[project.scripts]
+pymal-harvest = "pymal.harvest:main"
 
 [project.urls]
 Homepage = "https://github.com/LeMetadatarr/pymal"
